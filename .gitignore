@@ -1,0 +1,9 @@
+# ignore dependencies
+node_modules/
+
+# ignore environment variables
+.env
+
+
+# Ignore compiled TypeScript files 
+dist/
