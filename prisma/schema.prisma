@@ -2,63 +2,109 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
-
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model Allergen {
+  id                  Int                  @id @default(autoincrement())
+  name                String               @unique
+  ingredientAllergens IngredientAllergen[]
+}
+
+model Division {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  ingredients  Ingredient[]
+  subDivisions SubDivision[]
+}
+
+model SubDivision {
+  id         Int      @id @default(autoincrement())
+  name       String
+  divisionId Int      @map("division_id")
+  recipes    Recipe[]
+  division   Division @relation(fields: [divisionId], references: [id])
+}
+
+model Tag {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  ingredientTags IngredientTag[]
+}
+
+model Ingredient {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  unit                String
+  metricValue         Float                @map("metric_value")
+  divisionId          Int                  @map("division_id")
+  division            Division             @relation(fields: [divisionId], references: [id])
+  ingredientAllergens IngredientAllergen[]
+  ingredientTags      IngredientTag[]
+  RecipeIngredient    RecipeIngredient[]
+}
+
+model IngredientAllergen {
+  id           Int        @id @default(autoincrement())
+  ingredientId Int
+  allergenId   Int
+  allergen     Allergen   @relation(fields: [allergenId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+}
+
+model IngredientTag {
+  id           Int        @id @default(autoincrement())
+  ingredientId Int
+  tagId        Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  tag          Tag        @relation(fields: [tagId], references: [id], map: "IngredientTag_tagId_fkey")
+}
+
+model Recipe {
+  name             String
+  subDivisionId    Int
+  version          Int
+  id               Int                @id @default(autoincrement())
+  orderItems       OrderItem[]
+  subDivision      SubDivision        @relation(fields: [subDivisionId], references: [id])
+  RecipeIngredient RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  amount       Float
+  ingredientId Int
+  recipeId     Int
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@id([recipeId, ingredientId])
+}
+
+model DietaryTag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model IngredientDietaryTag {
+  dietaryTagId Int
+  ingredientId Int
+
+  @@id([ingredientId, dietaryTagId])
+}
+
 model Order {
-  id        String      @id @default(uuid())
-  total     Float
-  status    String      @default("pending")
   createdAt DateTime    @default(now())
+  id        Int         @id @default(autoincrement())
   items     OrderItem[]
 }
 
 model OrderItem {
-  id       String @id @default(uuid())
-  orderId  String
-  itemId   String
-  quantity Int
-  item     Item   @relation(fields: [itemId], references: [id])
+  recipeId Int
+  id       Int    @id @default(autoincrement())
+  orderId  Int
   order    Order  @relation(fields: [orderId], references: [id])
-}
-
-model User {
-  id       String @id @default(uuid())
-  username String @unique
-  pin      String
-}
-
-model Item {
-  id      String             @id @default(uuid())
-  name    String
-  price   Float
-  stock   Int
-  orders  OrderItem[]
-  recipes RecipeIngredient[]
-}
-
-model Recipe {
-  id          String             @id @default(uuid())
-  name        String
-  description String?
-  servings    Int
-  createdAt   DateTime           @default(now())
-  ingredients RecipeIngredient[]
-}
-
-model RecipeIngredient {
-  id       String @id @default(uuid())
-  recipeId String
-  itemId   String
-  quantity Float
-  unit     String
-  item     Item   @relation(fields: [itemId], references: [id])
   recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
