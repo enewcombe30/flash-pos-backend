@@ -11,6 +11,7 @@ model Allergen {
   id                  Int                  @id @default(autoincrement())
   name                String               @unique
   ingredientAllergens IngredientAllergen[]
+  RecipeAllergen      RecipeAllergen[]
 }
 
 model Division {
@@ -36,15 +37,16 @@ model Tag {
 }
 
 model Ingredient {
-  id                  Int                  @id @default(autoincrement())
-  name                String
-  unit                String
-  metricValue         Float                @map("metric_value")
-  divisionId          Int                  @map("division_id")
-  division            Division             @relation(fields: [divisionId], references: [id])
-  ingredientAllergens IngredientAllergen[]
-  ingredientTags      IngredientTag[]
-  RecipeIngredient    RecipeIngredient[]
+  id                    Int                    @id @default(autoincrement())
+  name                  String
+  unit                  String
+  metricValue           Float                  @map("metric_value")
+  divisionId            Int                    @map("division_id")
+  division              Division               @relation(fields: [divisionId], references: [id])
+  ingredientAllergens   IngredientAllergen[]
+  ingredientDietaryTags IngredientDietaryTag[]
+  ingredientTags        IngredientTag[]
+  RecipeIngredient      RecipeIngredient[]
 }
 
 model IngredientAllergen {
@@ -53,6 +55,8 @@ model IngredientAllergen {
   allergenId   Int
   allergen     Allergen   @relation(fields: [allergenId], references: [id])
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([ingredientId, allergenId], map: "IngredientAllergen_unique")
 }
 
 model IngredientTag {
@@ -64,13 +68,33 @@ model IngredientTag {
 }
 
 model Recipe {
-  name             String
-  subDivisionId    Int
-  version          Int
-  id               Int                @id @default(autoincrement())
-  orderItems       OrderItem[]
-  subDivision      SubDivision        @relation(fields: [subDivisionId], references: [id])
-  RecipeIngredient RecipeIngredient[]
+  name              String
+  subDivisionId     Int
+  version           Int
+  id                Int                @id @default(autoincrement())
+  orderItems        OrderItem[]
+  subDivision       SubDivision        @relation(fields: [subDivisionId], references: [id])
+  recipeAllergens   RecipeAllergen[]
+  recipeDietaryTags RecipeDietaryTag[]
+  RecipeIngredient  RecipeIngredient[]
+}
+
+model RecipeAllergen {
+  recipeId   Int
+  allergenId Int
+  allergen   Allergen @relation(fields: [allergenId], references: [id])
+  recipe     Recipe   @relation(fields: [recipeId], references: [id])
+
+  @@id([recipeId, allergenId])
+}
+
+model RecipeDietaryTag {
+  recipeId     Int
+  dietaryTagId Int
+  dietaryTag   DietaryTag @relation(fields: [dietaryTagId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@id([recipeId, dietaryTagId])
 }
 
 model RecipeIngredient {
@@ -84,13 +108,17 @@ model RecipeIngredient {
 }
 
 model DietaryTag {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  IngredientDietaryTag IngredientDietaryTag[]
+  RecipeDietaryTag     RecipeDietaryTag[]
 }
 
 model IngredientDietaryTag {
   dietaryTagId Int
   ingredientId Int
+  dietaryTag   DietaryTag @relation(fields: [dietaryTagId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
 
   @@id([ingredientId, dietaryTagId])
 }
