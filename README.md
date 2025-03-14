@@ -1,118 +1,234 @@
-# Flash-POS Backend
-
-This is the backend for the **Flash-POS** system, a point-of-sale application. It provides authentication, user management, and recipe data using **Node.js, Express, PostgreSQL, and JWT authentication**.
-
-## **🚀 Features**
-- **User Authentication** (JWT-based login system using passcodes)
-- **Recipe Management** (CRUD operations for recipes)
-- **User Management** (Fetching user data)
-- **PostgreSQL Database Integration**
-- **CORS Enabled** for frontend communication
+### **Flash-POS Backend**
+🚀 **Overview**  
+The **Flash-POS Backend** serves as the core API for the **Flash-POS system**, a **Point-of-Sale (POS) application**. It manages **recipes, ingredients, allergens, and dietary tags** using **Node.js, Express, and PostgreSQL**.
 
 ---
 
-## **📌 Installation & Setup**
+## 📌 **Features**
+✅ **Recipe Management**  
+   - Fetch recipes along with **ingredients, allergens, and dietary tags**  
+✅ **Ingredient Management**  
+   - Fetch ingredient details, including **allergen and dietary tag associations**  
+✅ **PostgreSQL Database Integration**  
+   - Uses **Prisma ORM** to manage database interactions  
+✅ **CORS Enabled**  
+   - Supports frontend communication with proper security configurations  
 
-### **1️⃣ Clone the Repository**
+---
+
+## 📌 **Installation & Setup**
+### 1️⃣ **Clone the Repository**
 ```sh
 git clone https://github.com/yourusername/flash-pos-backend.git
 cd flash-pos-backend
 ```
 
-### **2️⃣ Install Dependencies**
+### 2️⃣ **Install Dependencies**
 ```sh
 npm install
 ```
 
-### **3️⃣ Set Up Environment Variables**
+### 3️⃣ **Set Up Environment Variables**  
 Create a `.env` file in the root directory and add:
-```sh
+```
 DATABASE_URL=postgres://your_user:your_password@localhost:5432/your_database
 PORT=5001
-JWT_SECRET=your_secret_key
 ```
+Replace the values with your actual PostgreSQL credentials.
 
-Replace the values with your actual **PostgreSQL credentials**.
-
-### **4️⃣ Start the Development Server**
+### 4️⃣ **Start the Development Server**
 ```sh
 npm run dev
 ```
-The server will run on **`http://localhost:5001`**.
+The server will run on:  
+📍 **http://localhost:5001**
 
 ---
 
-## **📌 API Endpoints**
-
-### **🔹 Authentication**
-| Method | Endpoint | Description |
-|--------|---------|-------------|
-| `POST` | `/api/auth/login` | Logs in a user using a passcode (returns JWT) |
-
-#### **Example Login Request (POST /api/auth/login)**
-```json
-{
-  "passcode": "123"
-}
+## 📌 **API Endpoints**
+### 🔹 **Recipes**
+#### **Fetch All Recipes**
+**Request:**  
+```http
+GET /api/recipes
 ```
-#### **Response:**
-```json
-{
-  "token": "your_jwt_token_here"
-}
-```
-
----
-
-### **🔹 Users**
-| Method | Endpoint | Description |
-|--------|---------|-------------|
-| `GET` | `/api/users` | Fetches all users (Requires JWT) |
-
-#### **Example Users Request (GET /api/users)**
-**Headers:**
-```
-Authorization: Bearer your_jwt_token_here
-```
-#### **Response:**
+**Response Example:**
 ```json
 [
-  {
-    "id": 1,
-    "name": "John Doe",
-    "role": "admin"
-  },
-  {
-    "id": 2,
-    "name": "Jane Doe",
-    "role": "user"
-  }
+    {
+        "name": "Pesto Pasta",
+        "subDivisionId": 3,
+        "version": 1,
+        "id": 1,
+        "RecipeIngredient": [
+            {
+                "amount": 100,
+                "ingredientId": 1,
+                "recipeId": 1,
+                "ingredient": {
+                    "id": 1,
+                    "name": "Pesto",
+                    "unit": "g",
+                    "metricValue": 100,
+                    "ingredientAllergens": [],
+                    "ingredientDietaryTags": [
+                        {
+                            "dietaryTagId": 2,
+                            "ingredientId": 1,
+                            "dietaryTag": {
+                                "id": 2,
+                                "name": "Vegetarian"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "recipeAllergens": [
+            {
+                "recipeId": 1,
+                "allergenId": 1,
+                "allergen": {
+                    "id": 1,
+                    "name": "Gluten"
+                }
+            }
+        ],
+        "recipeDietaryTags": [
+            {
+                "recipeId": 1,
+                "dietaryTagId": 2,
+                "dietaryTag": {
+                    "id": 2,
+                    "name": "Vegetarian"
+                }
+            }
+        ]
+    }
 ]
 ```
 
 ---
 
-### **🔹 Recipes**
-| Method | Endpoint | Description |
-|--------|---------|-------------|
-| `GET` | `/api/recipes` | Fetches all recipes (Requires JWT) |
-
-#### **Example Recipe Request (GET /api/recipes)**
-**Headers:**
+### 🔹 **Ingredients**
+#### **Fetch All Ingredients**
+**Request:**  
+```http
+GET /api/ingredients
 ```
-Authorization: Bearer your_jwt_token_here
-```
-#### **Response:**
+**Response Example:**
 ```json
 [
-  {
-    "id": 1,
-    "name": "Spaghetti Bolognese",
-    "ingredients": "Tomato, Beef, Pasta",
-    "steps": "Cook pasta, prepare sauce..."
-  }
+    {
+        "id": 1,
+        "name": "Pesto",
+        "unit": "g",
+        "metricValue": 100,
+        "ingredientAllergens": [],
+        "ingredientDietaryTags": [
+            {
+                "dietaryTagId": 2,
+                "dietaryTag": {
+                    "id": 2,
+                    "name": "Vegetarian"
+                }
+            }
+        ]
+    }
 ]
 ```
+
+---
+
+### 🔹 **Allergens**
+#### **Fetch All Allergens**
+**Request:**  
+```http
+GET /api/allergens
+```
+**Response Example:**
+```json
+[
+    {
+        "id": 1,
+        "name": "Gluten"
+    },
+    {
+        "id": 2,
+        "name": "Dairy"
+    }
+]
+```
+
+---
+
+### 🔹 **Dietary Tags**
+#### **Fetch All Dietary Tags**
+**Request:**  
+```http
+GET /api/dietary-tags
+```
+**Response Example:**
+```json
+[
+    {
+        "id": 1,
+        "name": "Vegan"
+    },
+    {
+        "id": 2,
+        "name": "Vegetarian"
+    }
+]
+```
+
+---
+
+## 📌 **Project Structure**
+```
+Backend/
+│── src/
+│   ├── controllers/      # Handles API logic
+│   ├── routes/           # Defines API endpoints
+│   ├── utils/            # Utility functions
+│   ├── prisma/           # Database schema and migrations
+│── .env                  # Environment variables
+│── package.json          # Dependencies & scripts
+│── server.ts             # Express server setup
+```
+
+---
+
+## 📌 **Contributing**
+Contributions are welcome! To contribute:  
+1. **Fork** the repo  
+2. **Clone** your fork:  
+   ```sh
+   git clone https://github.com/yourusername/flash-pos-backend.git
+   ```
+3. **Create a feature branch:**  
+   ```sh
+   git checkout -b feature-branch
+   ```
+4. **Commit & push your changes:**  
+   ```sh
+   git commit -m "Add new feature"
+   git push origin feature-branch
+   ```
+5. **Open a Pull Request** 🚀  
+
+---
+
+### ✅ **Next Steps**
+- Implement **authentication** for protected routes 🔐  
+- Add **user management** 📋  
+- Implement **stock tracking** 📊  
+
+---
+
+### 🚀 **Flash-POS Backend API is ready!**  
+
+
 
 
 
