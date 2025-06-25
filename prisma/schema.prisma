@@ -71,6 +71,8 @@ model Recipe {
   name              String
   subDivisionId     Int
   version           Int
+  costPrice         Float?
+  salesPrice        Float?
   id                Int                @id @default(autoincrement())
   orderItems        OrderItem[]
   subDivision       SubDivision        @relation(fields: [subDivisionId], references: [id])
